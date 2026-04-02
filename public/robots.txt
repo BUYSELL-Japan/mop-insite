@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mop-insite.com/sitemap.xml

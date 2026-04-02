@@ -1,0 +1,55 @@
+{
+  "name": "MOP-Okinawa",
+  "short_name": "MOP-Okinawa",
+  "description": "像沖繩本地人一樣規劃您的完美旅程。使用 MOP 探索隱藏的寶藏、真實的體驗和熱門景點，它是您終極的旅行夥伴。",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "./?source=pwa",
+  "id": "./?version=1.0.1",
+  "orientation": "portrait",
+  "categories": ["travel", "navigation", "maps"],
+  "lang": "zh-TW",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "觀光景點",
+      "url": "./?category=1",
+      "icons": [{ "src": "https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/MOP192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "活動體驗",
+      "url": "./?category=2",
+      "icons": [{ "src": "https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/MOP192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/mop-shots.png",
+      "sizes": "640x1136",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "MOP-Okinawa"
+    }
+  ],
+  "icons": [
+    {
+      "src": "https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/MOP192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/MOP512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/MOP512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+イベント名,送信タイミング,送信条件,パラメータ名,データ型,値の例,説明
+scroll_depth,ユーザーがページをスクロールし特定の深度に到達したとき,25%・50%・75%・90%の各深度に初めて到達したときのみ送信,depth_percentage,number,25,スクロール深度（%）。25/50/75/90のいずれか
+scroll_depth,ユーザーがページをスクロールし特定の深度に到達したとき,25%・50%・75%・90%の各深度に初めて到達したときのみ送信,language,string,ja,現在選択されている言語（ja/zh-TW/en）
+external_link_click,ユーザーが外部リンクをクリックしたとき,Google Maps方向案内リンク・ガイドブックリンクなどの外部サイトへのリンククリック時,link_url,string,https://google.com/maps/dir/...,クリックされたリンクのURL
+external_link_click,ユーザーが外部リンクをクリックしたとき,Google Maps方向案内リンク・ガイドブックリンクなどの外部サイトへのリンククリック時,link_text,string,Get Directions,リンクのテキスト内容
+external_link_click,ユーザーが外部リンクをクリックしたとき,Google Maps方向案内リンク・ガイドブックリンクなどの外部サイトへのリンククリック時,language,string,ja,現在選択されている言語
+engagement_time,ユーザーがアクティブな状態から非アクティブになったとき,最後の操作から3分間（180秒）操作がない場合またはページ離脱時,engaged_seconds,number,245,アクティブエンゲージメント時間（秒）。非アクティブ時間は除外
+engagement_time,ユーザーがアクティブな状態から非アクティブになったとき,最後の操作から3分間（180秒）操作がない場合またはページ離脱時,language,string,ja,現在選択されている言語
+search_result,ユーザーが検索を実行したとき,検索ボックスに1文字以上入力された時点で即座に送信,search_query,string,首里城,ユーザーが入力した検索キーワード
+search_result,ユーザーが検索を実行したとき,検索ボックスに1文字以上入力された時点で即座に送信,result_count,number,5,検索結果の件数
+search_result,ユーザーが検索を実行したとき,検索ボックスに1文字以上入力された時点で即座に送信,language,string,ja,現在選択されている言語
+page_engagement,ページ離脱時（beforeunloadイベント）,初回スクロールと初回インタラクションの両方が記録されている場合のみ送信,timeToFirstScroll,number,3,ページ読み込みから初回スクロールまでの時間（秒）
+page_engagement,ページ離脱時（beforeunloadイベント）,初回スクロールと初回インタラクションの両方が記録されている場合のみ送信,timeToFirstInteraction,number,5,ページ読み込みから初回インタラクションまでの時間（秒）
+page_engagement,ページ離脱時（beforeunloadイベント）,初回スクロールと初回インタラクションの両方が記録されている場合のみ送信,scrollSpeed,string,normal,スクロール速度（slow/normal/fast/none）
+page_engagement,ページ離脱時（beforeunloadイベント）,初回スクロールと初回インタラクションの両方が記録されている場合のみ送信,interactionCount,number,15,ページ内での総操作回数（クリック・スクロールなど）
+page_engagement,ページ離脱時（beforeunloadイベント）,初回スクロールと初回インタラクションの両方が記録されている場合のみ送信,scrollStopCount,number,8,スクロールが停止した回数
+page_engagement,ページ離脱時（beforeunloadイベント）,初回スクロールと初回インタラクションの両方が記録されている場合のみ送信,language,string,ja,現在選択されている言語
+content_readability,ページ離脱時（beforeunloadイベント）,常に送信,estimatedReadRate,number,85,推定読了率（%）。スクロール深度と滞在時間から算出
+content_readability,ページ離脱時（beforeunloadイベント）,常に送信,scrollDepth,number,75,離脱時点でのスクロール深度（%）
+content_readability,ページ離脱時（beforeunloadイベント）,常に送信,timeSpent,number,120,ページ滞在時間（秒）
+content_readability,ページ離脱時（beforeunloadイベント）,常に送信,readingSpeed,string,normal,読書速度（slow/normal/fast）。スクロール深度/時間比で判定
+content_readability,ページ離脱時（beforeunloadイベント）,常に送信,language,string,ja,現在選択されている言語
+viewport_tracking,セクションがビューポートから外れたときまたはページ離脱時,Intersection Observerで監視中のセクションが1秒以上表示された場合またはスキップされた場合,sectionName,string,main-map,セクション名（data-section-name属性から取得）
+viewport_tracking,セクションがビューポートから外れたときまたはページ離脱時,Intersection Observerで監視中のセクションが1秒以上表示された場合またはスキップされた場合,visibilityTime,number,45,セクションが表示されていた時間（秒）。スキップ時は0
+viewport_tracking,セクションがビューポートから外れたときまたはページ離脱時,Intersection Observerで監視中のセクションが1秒以上表示された場合またはスキップされた場合,wasSkipped,boolean,false,セクションがスキップされた（表示されなかった）かどうか
+viewport_tracking,セクションがビューポートから外れたときまたはページ離脱時,Intersection Observerで監視中のセクションが1秒以上表示された場合またはスキップされた場合,language,string,ja,現在選択されている言語
+session_behavior,ページ離脱時（beforeunloadイベント）,常に送信,pagesViewed,number,1,セッション内で閲覧したページ数（現状は常に1）
+session_behavior,ページ離脱時（beforeunloadイベント）,常に送信,spotsViewed,array,"[""首里城"",""美ら海水族館"",""国際通り""]",閲覧したスポット名の配列（最大5件）
+session_behavior,ページ離脱時（beforeunloadイベント）,常に送信,userIntent,string,planning,推定されるユーザー意図（researching/planning/comparing）
+session_behavior,ページ離脱時（beforeunloadイベント）,常に送信,language,string,ja,現在選択されている言語
+device_context,ページ読み込み時（アプリケーション起動直後）,常に送信,time_of_day,string,afternoon,時間帯（morning/afternoon/evening/night）
+device_context,ページ読み込み時（アプリケーション起動直後）,常に送信,day_type,string,weekday,曜日タイプ（weekday/weekend）
+device_context,ページ読み込み時（アプリケーション起動直後）,常に送信,is_returning,boolean,true,リピーター訪問かどうか（localStorage判定）
+device_context,ページ読み込み時（アプリケーション起動直後）,常に送信,visit_count,number,3,訪問回数（localStorage管理）
+device_context,ページ読み込み時（アプリケーション起動直後）,常に送信,language,string,ja,現在選択されている言語
+long_stay_user,ページ滞在時間が60秒に達したとき,60秒滞在時に1回のみ送信（セッションごと）,stayDuration,number,60,滞在時間（秒）。送信時は必ず60秒以上
+long_stay_user,ページ滞在時間が60秒に達したとき,60秒滞在時に1回のみ送信（セッションごと）,copyCount,number,2,コピー操作の実行回数
+long_stay_user,ページ滞在時間が60秒に達したとき,60秒滞在時に1回のみ送信（セッションごと）,tabSwitchCount,number,1,タブ切り替え回数（visibilitychangeイベント）
+long_stay_user,ページ滞在時間が60秒に達したとき,60秒滞在時に1回のみ送信（セッションごと）,language,string,ja,現在選択されている言語
+exit_intent,マウスカーソルがページ上部（Y座標<0）を離れたとき,PCブラウザのみ（mouseleaveイベント）,scrollDepth,number,45,離脱意図検知時のスクロール深度（%）
+exit_intent,マウスカーソルがページ上部（Y座標<0）を離れたとき,PCブラウザのみ（mouseleaveイベント）,timeSinceLastAction,number,15,最後の操作からの経過時間（秒）
+exit_intent,マウスカーソルがページ上部（Y座標<0）を離れたとき,PCブラウザのみ（mouseleaveイベント）,trigger,string,mouse_leave_top,離脱意図のトリガー種別
+exit_intent,マウスカーソルがページ上部（Y座標<0）を離れたとき,PCブラウザのみ（mouseleaveイベント）,language,string,ja,現在選択されている言語
+interaction_chain,ページ離脱時（beforeunloadイベント）,1つ以上のインタラクションが記録されている場合のみ送信,actionSequence,array,"[""scroll"",""click"",""external_link_click"",""copy""]",ユーザー操作の順序配列（最大20アクション）
+interaction_chain,ページ離脱時（beforeunloadイベント）,1つ以上のインタラクションが記録されている場合のみ送信,totalDuration,number,180,最初の操作から最後の操作までの経過時間（秒）
+interaction_chain,ページ離脱時（beforeunloadイベント）,1つ以上のインタラクションが記録されている場合のみ送信,language,string,ja,現在選択されている言語
+pin_click,ユーザーが地図上のピンをクリックしたとき,常に送信,pinName,string,首里城,クリックされたピンの名称
+affiliate_link_click,ユーザーがアフィリエイトリンクをクリックしたとき,常に送信,link_url,string,https://example.com/...,アフィリエイトリンクのURL
+affiliate_link_click,ユーザーがアフィリエイトリンクをクリックしたとき,常に送信,location_name,string,沖縄美ら海水族館,スポットの場所名
+affiliate_link_click,ユーザーがアフィリエイトリンクをクリックしたとき,常に送信,pin_title,string,美ら海水族館,ピンのタイトル
+affiliate_link_click,ユーザーがアフィリエイトリンクをクリックしたとき,常に送信,link_type,string,official_site,リンクの種別（official_site/booking/etc）
