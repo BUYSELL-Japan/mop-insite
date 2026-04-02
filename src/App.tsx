@@ -22,7 +22,7 @@ import { Location } from './types/location';
 import { validateEnv } from './utils/envValidation';
 import { exchangeCodeForTokens, parseJwt, getFavorites, checkAndRefreshTokens } from './utils/auth';
 
-const LOGIN_URL = "https://ap-southeast-2usngbi9wi.auth.ap-southeast-2.amazoncognito.com/login?client_id=12nf22nqg8mpcq1q77nm5uqbls&response_type=code&scope=email+openid&redirect_uri=https%3A%2F%2Fmop-insite.com";
+const LOGIN_URL = `https://ap-southeast-2usngbi9wi.auth.ap-southeast-2.amazoncognito.com/login?client_id=12nf22nqg8mpcq1q77nm5uqbls&response_type=code&scope=email+openid&redirect_uri=${encodeURIComponent(window.location.origin)}`;
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -336,7 +336,7 @@ function App() {
 
               <div className={`${isMobile ? 'snap-center' : ''}`}>
                 <a
-                  href={language === 'zh-TW' ? 'https://mop-insite.com/zh/guidebook/' : 'https://mop-insite.com/en/guidebook/'}
+                  href={language === 'zh-TW' ? `${window.location.origin}/zh/guidebook/` : `${window.location.origin}/en/guidebook/`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/30 hover:bg-white/95 transition-colors whitespace-nowrap text-sm min-h-[36px]"

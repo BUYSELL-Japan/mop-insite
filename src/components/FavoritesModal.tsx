@@ -222,23 +222,19 @@ export default function FavoritesModal({
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1"
+                            className={`flex-1 px-3 ${isMobile ? 'py-1.5 text-xs' : 'py-2 text-sm'} text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center flex items-center justify-center`}
                             onClick={() => handleAffiliateLinkClick(url, location.properties.title, location.properties.category_id || "1")}
                           >
-                            <button className={`w-full px-3 ${isMobile ? 'py-1.5 text-xs' : 'py-2 text-sm'} text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors font-medium`}>
-                              {getButtonText(location.properties.category_id || "1")}
-                            </button>
+                            {getButtonText(location.properties.category_id || "1")}
                           </a>
                         )}
                         <a
                           href={directionsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1"
+                          className={`flex-1 px-3 ${isMobile ? 'py-1.5 text-xs' : 'py-2 text-sm'} text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors font-medium text-center flex items-center justify-center`}
                         >
-                          <button className={`w-full px-3 ${isMobile ? 'py-1.5 text-xs' : 'py-2 text-sm'} text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors font-medium`}>
-                            Direction
-                          </button>
+                          Direction
                         </a>
                       </div>
                     </div>

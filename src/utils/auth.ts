@@ -14,7 +14,7 @@ const FavoriteResponseSchema = z.object({
 const AUTH_CONFIG = {
   domain: 'ap-southeast-2usngbi9wi.auth.ap-southeast-2.amazoncognito.com',
   clientId: '12nf22nqg8mpcq1q77nm5uqbls',
-  redirectUri: 'https://mop-insite.com',
+  redirectUri: window.location.origin,
   apiEndpoint: 'https://fs9bcwy98j.execute-api.ap-southeast-2.amazonaws.com/dev'
 };
 

@@ -252,10 +252,22 @@ const Map = forwardRef<MapRef, MapProps>(({
   };
 
   const getDirectionsUrl = (lat: number, lng: number): string => {
-    if (userLocation) {
-      return `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${lat},${lng}`;
-    }
+    // 常に新しいタブで開き、現在地からのルートをGoogleマップ側で計算させる
     return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  };
+
+  const normalizeMopUrl = (url: string): string => {
+    if (!url) return url;
+    try {
+      // ドメイン部分を現在の環境に合わせて動的に置換
+      const currentOrigin = window.location.origin;
+      return url
+        .replace(/^https?:\/\/(?:www\.)?mop-okinawa\.com/g, currentOrigin)
+        .replace(/^https?:\/\/(?:www\.)?mop-insite\.com/g, currentOrigin);
+    } catch (e) {
+      console.error('URL normalization error:', e);
+      return url;
+    }
   };
 
   const extractUrl = (description: string): string | null => {
@@ -406,10 +418,11 @@ const Map = forwardRef<MapRef, MapProps>(({
       ? (location.properties.affiliate_link_tw || location.properties.affiliate_link)
       : location.properties.affiliate_link;
 
-    // Get guidebook URL based on language
-    const guidebookUrl = language === 'zh-TW'
+    // Get guidebook URL based on language and normalize it
+    const rawGuidebookUrl = language === 'zh-TW'
       ? location.properties.guidebook_url_tw
       : location.properties.guidebook_url_en;
+    const guidebookUrl = normalizeMopUrl(rawGuidebookUrl || '');
 
     const cleanDescription = getCleanDescription(description);
     const lat = location.geometry.coordinates[1];
@@ -482,22 +495,18 @@ const Map = forwardRef<MapRef, MapProps>(({
               href="${escapeHtml(guidebookUrl)}"
               target="_blank"
               rel="noopener noreferrer"
-              class="block"
+              class="w-full px-3 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-center flex items-center justify-center"
             >
-              <button class="w-full px-3 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium">
-                ${t('action.guidebookButton')}
-              </button>
+              ${t('action.guidebookButton')}
             </a>
           ` : ''}
           <a
             href="${directionsUrl}"
             target="_blank"
             rel="noopener noreferrer"
-            class="block"
+            class="w-full px-3 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-center flex items-center justify-center"
           >
-            <button class="w-full px-3 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium">
-              ${t('action.direction')}
-            </button>
+            ${t('action.direction')}
           </a>
         </div>
       </div>

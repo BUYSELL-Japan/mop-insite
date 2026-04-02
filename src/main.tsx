@@ -16,9 +16,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   installBanner.id = 'pwa-install-banner';
   installBanner.className = 'fixed bottom-0 left-0 right-0 bg-blue-600 text-white p-4 flex justify-between items-center z-[9999]';
   installBanner.innerHTML = `
-    <div class="flex-1">
       <p class="font-medium">ホーム画面に追加して、より快適に使用できます</p>
-      <p class="text-sm opacity-90">オフラインでも使用可能になります</p>
     </div>
     <div class="flex gap-2">
       <button id="pwa-install-later" class="px-4 py-2 text-sm">後で</button>
