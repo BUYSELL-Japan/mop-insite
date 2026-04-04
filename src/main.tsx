@@ -9,21 +9,22 @@ let deferredPrompt: any;
 
 // 言語設定の取得（PWAバナー用）
 const getLanguage = () => {
-  // 1. LocalStorage
-  const stored = localStorage.getItem('language');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      // LocalStorageは JSON 文字列として保存されているため '"en"' のようになる
-      const lang = typeof parsed === 'string' ? parsed : parsed.toString();
-      if (lang === 'zh-TW' || lang === 'en') return lang;
-    } catch (e) {}
-  }
-  // 2. URLパラメータ
+  // 1. URLパラメータを最優先（遷移時の意図を反映するため）
   const urlParams = new URLSearchParams(window.location.search);
   const langParam = urlParams.get('lang');
   if (langParam === 'zh') return 'zh-TW';
   if (langParam === 'en') return 'en';
+
+  // 2. LocalStorage
+  const stored = localStorage.getItem('language');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      const lang = typeof parsed === 'string' ? parsed : parsed.toString();
+      if (lang === 'zh-TW' || lang === 'en') return lang;
+    } catch (e) {}
+  }
+
   // 3. ブラウザ言語
   const browserLang = navigator.language;
   return browserLang?.startsWith('zh') ? 'zh-TW' : 'en';
@@ -108,55 +109,46 @@ async function cleanupOldServiceWorkers() {
   }
 }
 
-// Register service worker with auto-update and forced reload
+// Service worker registration
 if ('serviceWorker' in navigator) {
-  // First cleanup old service workers
-  cleanupOldServiceWorkers().then(() => {
-    try {
-      const updateSW = registerSW({
-        immediate: true,
-        onNeedRefresh() {
-          console.log('New content available, updating...');
-          // Immediately update and reload
-          updateSW(true).then(() => {
-            console.log('Update applied, reloading page...');
-            window.location.reload();
-          });
-        },
-        onOfflineReady() {
-          const currentLang = getLanguage();
-          const offlineMsg = currentLang === 'zh-TW' 
-            ? '應用程式已可離線使用' 
-            : 'Application is now ready to work offline';
-          console.log(offlineMsg);
-        },
-        onRegistered(swUrl, r) {
-          console.log('Service Worker registered:', swUrl);
-
-          // Aggressive update checking
-          if (r) {
-            // Check immediately
-            r.update().catch(err => console.error('Initial update check failed:', err));
-
-            // Then check every 30 seconds
-            setInterval(async () => {
-              try {
-                await r.update();
-                console.log('Service Worker update check completed');
-              } catch (err) {
-                console.error('Service Worker update failed:', err);
-              }
-            }, 30 * 1000); // 30秒ごと
-          }
-        },
-        onRegisterError(error) {
-          console.error('Service Worker registration failed:', error);
+  try {
+    const updateSW = registerSW({
+      immediate: true,
+      onNeedRefresh() {
+        console.log('New content available, updating...');
+        updateSW(true).then(() => {
+          window.location.reload();
+        });
+      },
+      onOfflineReady() {
+        const currentLang = getLanguage();
+        const offlineMsg = currentLang === 'zh-TW' 
+          ? '應用程式已可離線使用' 
+          : 'Application is now ready to work offline';
+        console.log(offlineMsg);
+      },
+      onRegistered(swUrl, r) {
+        console.log('Service Worker registered:', swUrl);
+        if (r) {
+          r.update().catch(err => console.error('Initial update check failed:', err));
+          
+          // Check for updates periodically (30s)
+          setInterval(async () => {
+            try {
+              await r.update();
+            } catch (err) {
+              console.error('Service Worker update check failed:', err);
+            }
+          }, 30 * 1000);
         }
-      });
-    } catch (error) {
-      console.error('Failed to register service worker:', error);
-    }
-  });
+      },
+      onRegisterError(error) {
+        console.error('Service Worker registration failed:', error);
+      }
+    });
+  } catch (error) {
+    console.error('Failed to register service worker:', error);
+  }
 }
 
 // Render app with error boundary

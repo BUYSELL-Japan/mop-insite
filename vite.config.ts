@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 const BUILD_VERSION = Date.now().toString();
 
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [
     react(),
 VitePWA({
