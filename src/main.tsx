@@ -7,20 +7,59 @@ import './index.css';
 // PWAのインストールプロンプトを保存
 let deferredPrompt: any;
 
+// 言語設定の取得（PWAバナー用）
+const getLanguage = () => {
+  // 1. LocalStorage
+  const stored = localStorage.getItem('language');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      // LocalStorageは JSON 文字列として保存されているため '"en"' のようになる
+      const lang = typeof parsed === 'string' ? parsed : parsed.toString();
+      if (lang === 'zh-TW' || lang === 'en') return lang;
+    } catch (e) {}
+  }
+  // 2. URLパラメータ
+  const urlParams = new URLSearchParams(window.location.search);
+  const langParam = urlParams.get('lang');
+  if (langParam === 'zh') return 'zh-TW';
+  if (langParam === 'en') return 'en';
+  // 3. ブラウザ言語
+  const browserLang = navigator.language;
+  return browserLang?.startsWith('zh') ? 'zh-TW' : 'en';
+};
+
+const pwaTexts = {
+  en: {
+    message: 'Add to Home Screen for a better experience',
+    later: 'Later',
+    install: 'Install'
+  },
+  'zh-TW': {
+    message: '新增至主畫面以獲得更好的體驗',
+    later: '稍後',
+    install: '安裝'
+  }
+};
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   
+  const currentLang = getLanguage();
+  const t = pwaTexts[currentLang] || pwaTexts.en;
+
   // インストールプロンプトが利用可能であることを示すUIを表示
   const installBanner = document.createElement('div');
   installBanner.id = 'pwa-install-banner';
   installBanner.className = 'fixed bottom-0 left-0 right-0 bg-blue-600 text-white p-4 flex justify-between items-center z-[9999]';
   installBanner.innerHTML = `
-      <p class="font-medium">ホーム画面に追加して、より快適に使用できます</p>
+    <div class="flex-1 mr-4">
+      <p class="font-medium">${t.message}</p>
     </div>
     <div class="flex gap-2">
-      <button id="pwa-install-later" class="px-4 py-2 text-sm">後で</button>
-      <button id="pwa-install-button" class="px-4 py-2 bg-white text-blue-600 rounded-lg text-sm font-medium">インストール</button>
+      <button id="pwa-install-later" class="px-4 py-2 text-sm">${t.later}</button>
+      <button id="pwa-install-button" class="px-4 py-2 bg-white text-blue-600 rounded-lg text-sm font-medium">${t.install}</button>
     </div>
   `;
 
@@ -85,7 +124,11 @@ if ('serviceWorker' in navigator) {
           });
         },
         onOfflineReady() {
-          console.log('アプリケーションがオフラインで利用可能になりました');
+          const currentLang = getLanguage();
+          const offlineMsg = currentLang === 'zh-TW' 
+            ? '應用程式已可離線使用' 
+            : 'Application is now ready to work offline';
+          console.log(offlineMsg);
         },
         onRegistered(swUrl, r) {
           console.log('Service Worker registered:', swUrl);
