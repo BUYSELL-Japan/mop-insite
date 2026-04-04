@@ -23,7 +23,7 @@ VitePWA({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/en\/spot\//, /^\/zh\/spot\//],
+        navigateFallbackDenylist: [/^\/api\//, /^\/en\/spot\//, /^\/zh\/spot\//, /^\/en\/guidebook\//, /^\/zh\/guidebook\//],
         // Add version to cache names to force cache refresh on new deploys
         cacheId: `mop-okinawa-v${BUILD_VERSION}`,
         runtimeCaching: [
