@@ -481,7 +481,8 @@ const Map = forwardRef<MapRef, MapProps>(({
         <div class="grid ${guidebookUrl ? 'grid-cols-3' : 'grid-cols-2'} gap-2">
           ${url ? `
             <button
-              class="w-full px-3 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium affiliate-link-button"
+              type="button"
+              class="w-full px-3 py-2 text-white font-bold bg-blue-600 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} affiliate-link-button shadow-sm"
               data-affiliate-url="${escapeHtml(url)}"
               data-location-name="${escapeHtml(location.properties.title)}"
               data-pin-title="${escapeHtml(location.properties.title)}"
@@ -491,23 +492,22 @@ const Map = forwardRef<MapRef, MapProps>(({
             </button>
           ` : '<div></div>'}
           ${guidebookUrl ? `
-            <a
-              href="${escapeHtml(guidebookUrl)}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="w-full px-3 py-2 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-center flex items-center justify-center"
+            <button
+              type="button"
+              class="w-full px-3 py-2 text-white font-bold bg-purple-600 rounded-lg hover:bg-purple-700 active:bg-purple-800 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} text-center flex items-center justify-center shadow-sm guidebook-link-button"
+              data-guidebook-url="${escapeHtml(guidebookUrl)}"
+              data-location-name="${escapeHtml(location.properties.title)}"
             >
               ${t('action.guidebookButton')}
-            </a>
+            </button>
           ` : ''}
-          <a
-            href="${directionsUrl}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="w-full px-3 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} font-medium text-center flex items-center justify-center"
+          <button
+            type="button"
+            class="w-full px-3 py-2 text-white font-bold bg-green-600 rounded-lg hover:bg-green-700 active:bg-green-800 transition-colors ${isMobile ? 'text-xs' : 'text-sm'} text-center flex items-center justify-center shadow-sm directions-link-button"
+            data-directions-url="${escapeHtml(directionsUrl)}"
           >
             ${t('action.direction')}
-          </a>
+          </button>
         </div>
       </div>
     `;
@@ -517,9 +517,11 @@ const Map = forwardRef<MapRef, MapProps>(({
     const handleClick = async (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
+      // アフィリエイトリンクボタン
       const affiliateLinkButton = target.closest('.affiliate-link-button');
       if (affiliateLinkButton) {
         e.preventDefault();
+        e.stopPropagation();
         const linkUrl = affiliateLinkButton.getAttribute('data-affiliate-url');
         const locationName = affiliateLinkButton.getAttribute('data-location-name');
         const pinTitle = affiliateLinkButton.getAttribute('data-pin-title');
@@ -543,25 +545,45 @@ const Map = forwardRef<MapRef, MapProps>(({
             window.open(decodedUrl, '_blank', 'noopener,noreferrer');
           }, 100);
         }
+        return;
       }
 
+      // ガイドブックボタン（新タブで安全に開く）
+      const guidebookButton = target.closest('.guidebook-link-button');
+      if (guidebookButton) {
+        e.preventDefault();
+        e.stopPropagation();
+        const guidebookUrl = guidebookButton.getAttribute('data-guidebook-url');
+        const locationName = guidebookButton.getAttribute('data-location-name');
+        if (guidebookUrl) {
+          const decodedUrl = unescapeHtml(guidebookUrl);
+          const decodedName = unescapeHtml(locationName || '');
+          sendExternalLinkClickEvent(decodedUrl, decodedName, getCurrentLanguage());
+          window.open(decodedUrl, '_blank', 'noopener,noreferrer');
+        }
+        return;
+      }
+
+      // 経路案内ボタン（新タブで安全に開く）
+      const directionsButton = target.closest('.directions-link-button');
+      if (directionsButton) {
+        e.preventDefault();
+        e.stopPropagation();
+        const directionsUrl = directionsButton.getAttribute('data-directions-url');
+        if (directionsUrl) {
+          const decodedUrl = unescapeHtml(directionsUrl);
+          sendExternalLinkClickEvent(decodedUrl, 'Get Directions', getCurrentLanguage());
+          window.open(decodedUrl, '_blank', 'noopener,noreferrer');
+        }
+        return;
+      }
+
+      // お気に入りボタン
       const favoriteButton = target.closest('.favorite-button');
       if (favoriteButton) {
         const pinId = favoriteButton.getAttribute('data-pin-id');
         if (pinId) {
           await handleFavoriteClick(pinId);
-        }
-      }
-
-      const link = target.closest('a');
-      if (link && link.href) {
-        const href = link.getAttribute('href') || '';
-        const linkText = link.textContent || '';
-
-        if (href.includes('google.com/maps/dir')) {
-          sendExternalLinkClickEvent(href, 'Get Directions', getCurrentLanguage());
-        } else if (href.includes('guidebook')) {
-          sendExternalLinkClickEvent(href, linkText, getCurrentLanguage());
         }
       }
     };
