@@ -540,10 +540,7 @@ const Map = forwardRef<MapRef, MapProps>(({
             linkType: decodedLinkType
           });
           sendAffiliateLinkClickEvent(decodedUrl, decodedLocationName, decodedPinTitle, decodedLinkType);
-
-          setTimeout(() => {
-            window.open(decodedUrl, '_blank', 'noopener,noreferrer');
-          }, 100);
+          window.open(decodedUrl, '_blank', 'noopener,noreferrer');
         }
         return;
       }
