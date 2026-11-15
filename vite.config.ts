@@ -23,7 +23,9 @@ VitePWA({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/en\/spot\//, /^\/zh\/spot\//, /^\/en\/guidebook\//, /^\/zh\/guidebook\//, /^\/sitemap\.xml$/, /^\/robots\.txt$/],
+        // Paths served by other Pages projects (via the Cloudflare Worker) must not fall back to the map app.
+        // SSG pages are served without a trailing slash (/en/spot, /en/restaurant/<slug>), so match both forms.
+        navigateFallbackDenylist: [/^\/api\//, /^\/en\/spot(\/|$)/, /^\/zh\/spot(\/|$)/, /^\/en\/restaurant(\/|$)/, /^\/zh\/restaurant(\/|$)/, /^\/en\/guidebook\//, /^\/zh\/guidebook\//, /^\/sitemap\.xml$/, /^\/robots\.txt$/],
         // Add version to cache names to force cache refresh on new deploys
         cacheId: `mop-okinawa-v${BUILD_VERSION}`,
         runtimeCaching: [
