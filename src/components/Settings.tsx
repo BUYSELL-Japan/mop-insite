@@ -18,7 +18,7 @@ export default function Settings({
 }: SettingsProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -90,13 +90,7 @@ export default function Settings({
 
             <div className="border-t pt-4">
               <button
-                onClick={() => {
-                  if (language === 'zh-TW') {
-                    window.open('https://mop-world.com/terms-of-service-zh-tw/', '_blank');
-                  } else {
-                    setIsTermsOpen(true);
-                  }
-                }}
+                onClick={() => setIsTermsOpen(true)}
                 className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <FileText className="w-4 h-4" />

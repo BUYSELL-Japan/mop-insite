@@ -15,9 +15,10 @@ interface TermsContent {
   thanks: string;
 }
 
-// The in-app beta terms. English is the source; Korean is a translation of it (2026-11-17).
-// zh-TW users are sent to an external page from Settings instead of this modal.
-const TERMS: Record<'en' | 'ko', TermsContent> = {
+// The in-app beta terms. English is the source; Korean and Traditional Chinese are translations
+// of it (2026-11-17). zh-TW used to open https://mop-world.com/terms-of-service-zh-tw/, a domain
+// that no longer exists.
+const TERMS: Record<'en' | 'zh-TW' | 'ko', TermsContent> = {
   en: {
     title: 'Terms of Use (Beta Version)',
     welcome: 'Welcome to MOP!',
@@ -31,6 +32,20 @@ const TERMS: Record<'en' | 'ko', TermsContent> = {
       { heading: 'Subject to Change', body: 'These terms may be updated at any time without notice as we move toward the official release.' },
     ],
     thanks: 'Thank you for being an early user of MOP! 🌏✨',
+  },
+  'zh-TW': {
+    title: '服務條款（測試版）',
+    welcome: '歡迎使用 MOP！',
+    intro: '本應用程式目前仍處於測試階段。在此期間使用 MOP，即表示您了解並同意以下內容：',
+    sections: [
+      { heading: '測試版聲明', body: '本應用程式仍在積極開發中，功能可能會有所變更，也可能偶爾發生錯誤或問題。' },
+      { heading: '不提供保證', body: '我們不保證內容或服務的正確性、完整性或可用性，請自行斟酌使用。' },
+      { heading: '使用者責任', body: '您須對自己使用本應用程式的方式負責。請勿僅依賴 MOP 做出重要的旅遊決定。' },
+      { heading: '資料與隱私', body: '我們可能會收集有限的使用資料以改善應用程式，但不會出售或分享個人資訊。' },
+      { heading: '歡迎提供意見', body: '由於這是測試版，您的意見對我們非常重要。如有任何想法、錯誤回報或建議，歡迎隨時與我們聯絡。' },
+      { heading: '條款變更', body: '在正式版推出前，本條款可能隨時更新，恕不另行通知。' },
+    ],
+    thanks: '感謝您成為 MOP 的早期使用者！🌏✨',
   },
   ko: {
     title: '이용약관 (베타 버전)',
@@ -51,7 +66,7 @@ const TERMS: Record<'en' | 'ko', TermsContent> = {
 export default function TermsOfUseModal({ isOpen, onClose }: TermsOfUseModalProps) {
   const { language } = useLanguage();
   if (!isOpen) return null;
-  const terms = language === 'ko' ? TERMS.ko : TERMS.en;
+  const terms = TERMS[language] ?? TERMS.en;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
