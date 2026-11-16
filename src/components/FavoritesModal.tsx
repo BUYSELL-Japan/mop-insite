@@ -90,9 +90,9 @@ export default function FavoritesModal({
   const getButtonText = (categoryId: string): string => {
     switch (categoryId) {
       case "4":
-        return "See Details";
+        return t('action.seeDetails');
       default:
-        return "Book Now";
+        return t('action.bookNow');
     }
   };
 
@@ -146,7 +146,7 @@ export default function FavoritesModal({
       >
         <div className="sticky top-0 bg-white z-10 px-4 py-3 border-b rounded-t-lg">
           <div className="flex justify-between items-center">
-            <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>Favorites</h2>
+            <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>{t('nav.favorites')}</h2>
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
@@ -165,8 +165,8 @@ export default function FavoritesModal({
         <div className="overflow-y-auto px-4" style={{ maxHeight: 'calc(85vh - 57px)' }}>
           {favorites.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <p>No favorites yet</p>
-              <p className="text-sm mt-2">Start adding your favorite places!</p>
+              <p>{t('favorites.empty')}</p>
+              <p className="text-sm mt-2">{t('favorites.emptyHint')}</p>
             </div>
           ) : (
             <div className="py-3 space-y-3">

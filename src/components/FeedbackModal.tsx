@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { X, Facebook } from 'lucide-react';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface FeedbackModalProps {
 
 export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,7 +36,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
       >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Feedback</h2>
+          <h2 className="text-xl font-bold">{t('nav.feedback')}</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -61,9 +63,9 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
           </a>
           
           <div className="mt-6 space-y-2 text-gray-700">
-            <p className="font-medium">💬 Have feedback or ideas for MOP?</p>
+            <p className="font-medium">{t('feedback.heading')}</p>
             <p className="text-sm">
-              Join our Okinawa Travel Community on Facebook! Share your thoughts, suggestions, and travel experiences with other explorers.
+              {t('feedback.body')}
             </p>
           </div>
         </div>

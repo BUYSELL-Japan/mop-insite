@@ -11,7 +11,7 @@ interface WeatherModalProps {
 export default function WeatherModal({ isOpen, onClose }: WeatherModalProps) {
   const { width } = useWindowSize();
   const isMobile = width < 768;
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     if (isOpen) {
@@ -52,7 +52,7 @@ export default function WeatherModal({ isOpen, onClose }: WeatherModalProps) {
         isMobile ? 'w-full h-[300px]' : 'w-[400px] h-[300px]'
       }`}>
         <div className="flex justify-between items-center p-1.5 border-b">
-          <h2 className="text-sm font-semibold text-gray-700">Okinawa Weather</h2>
+          <h2 className="text-sm font-semibold text-gray-700">{t('weather.title')}</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
@@ -62,7 +62,7 @@ export default function WeatherModal({ isOpen, onClose }: WeatherModalProps) {
         </div>
         
         <div className="w-full h-[calc(100%-32px)]">
-          {language === 'zh-TW' ? (
+          {language !== 'en' ? (
             <a
               className="weatherwidget-io"
               href="https://forecast7.com/en/26d21127d68/okinawa-prefecture/"

@@ -14,6 +14,7 @@ const getLanguage = () => {
   const langParam = urlParams.get('lang');
   if (langParam === 'zh') return 'zh-TW';
   if (langParam === 'en') return 'en';
+  if (langParam === 'ko') return 'ko';
 
   // 2. LocalStorage
   const stored = localStorage.getItem('language');
@@ -21,13 +22,15 @@ const getLanguage = () => {
     try {
       const parsed = JSON.parse(stored);
       const lang = typeof parsed === 'string' ? parsed : parsed.toString();
-      if (lang === 'zh-TW' || lang === 'en') return lang;
+      if (lang === 'zh-TW' || lang === 'en' || lang === 'ko') return lang;
     } catch (e) {}
   }
 
   // 3. ブラウザ言語
   const browserLang = navigator.language;
-  return browserLang?.startsWith('zh') ? 'zh-TW' : 'en';
+  if (browserLang?.startsWith('zh')) return 'zh-TW';
+  if (browserLang?.startsWith('ko')) return 'ko';
+  return 'en';
 };
 
 const pwaTexts = {
@@ -40,6 +43,11 @@ const pwaTexts = {
     message: '新增至主畫面以獲得更好的體驗',
     later: '稍後',
     install: '安裝'
+  },
+  ko: {
+    message: '홈 화면에 추가하면 더 편리하게 이용할 수 있습니다',
+    later: '나중에',
+    install: '설치'
   }
 };
 

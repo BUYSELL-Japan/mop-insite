@@ -24,7 +24,7 @@ export default function SearchModal({ isOpen, onClose, locations, onLocationSele
   const inputRef = useRef<HTMLInputElement>(null);
   const { width } = useWindowSize();
   const isMobile = width < 768;
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -51,12 +51,16 @@ export default function SearchModal({ isOpen, onClose, locations, onLocationSele
   const calculateScore = (location: Location, searchTerms: string[]): number => {
     let score = 0;
     // Use localized fields for search
-    const title = (language === 'zh-TW' 
+    const title = (language === 'zh-TW'
       ? (location.properties.title_zh_tw || location.properties.title)
-      : location.properties.title)?.toLowerCase() || '';
+      : language === 'ko'
+        ? (location.properties.title_ko || location.properties.title)
+        : location.properties.title)?.toLowerCase() || '';
     const address = (language === 'zh-TW'
       ? (location.properties['address_zh-tw'] || location.properties.address)
-      : location.properties.address)?.toLowerCase() || '';
+      : language === 'ko'
+        ? (location.properties.address_ko || location.properties.address)
+        : location.properties.address)?.toLowerCase() || '';
     const description = location.properties.description?.toLowerCase() || '';
 
     for (const term of searchTerms) {
@@ -144,7 +148,7 @@ export default function SearchModal({ isOpen, onClose, locations, onLocationSele
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search locations..."
+              placeholder={t('search.placeholder')}
               className="flex-1 text-sm outline-none"
             />
             <button

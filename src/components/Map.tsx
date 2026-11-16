@@ -373,7 +373,7 @@ const Map = forwardRef<MapRef, MapProps>(({
   const handleFavoriteClick = async (pinId: string) => {
     const idToken = localStorage.getItem('id_token');
     if (!idToken) {
-      showMessage('Please log in to add favorites');
+      showMessage(t('message.loginToAddFavorites'));
       return;
     }
 
@@ -398,7 +398,7 @@ const Map = forwardRef<MapRef, MapProps>(({
       if (error instanceof Error && error.message === 'User not authenticated') {
         showMessage(t('message.loginToAddFavorites'));
       } else {
-        showMessage('Failed to update favorites');
+        showMessage(t('message.favoritesUpdateFailed'));
       }
     }
   };
@@ -454,7 +454,7 @@ const Map = forwardRef<MapRef, MapProps>(({
               class="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md hover:bg-white/95 transition-colors z-10 favorite-button ${isAnimating ? 'animate' : ''}"
               data-pin-id="${pinId}"
               data-is-favorite="${isFavorite}"
-              aria-label="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}"
+              aria-label="${isFavorite ? t('favorites.remove') : t('favorites.add')}"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="${isFavorite ? '#fbbf24' : 'none'}" stroke="${isFavorite ? '#fbbf24' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
@@ -659,7 +659,7 @@ const Map = forwardRef<MapRef, MapProps>(({
             >
               <Popup>
                 <div className="p-2">
-                  <h3 className="text-sm font-semibold mb-1">Current Location</h3>
+                  <h3 className="text-sm font-semibold mb-1">{t('map.currentLocation')}</h3>
                 </div>
               </Popup>
             </Marker>
@@ -711,7 +711,7 @@ const Map = forwardRef<MapRef, MapProps>(({
           <button
             onClick={moveToCurrentLocation}
             className="p-2.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-            title="Move to current location"
+            title={t('map.moveToCurrentLocation')}
           >
             <Crosshair className="w-5 h-5 text-gray-700" />
           </button>
@@ -719,7 +719,7 @@ const Map = forwardRef<MapRef, MapProps>(({
           <button
             onClick={moveToCenter}
             className="p-2.5 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-            title="Move to center of Okinawa"
+            title={t('map.moveToCenter')}
           >
             <MapPin className="w-5 h-5 text-gray-700" />
           </button>

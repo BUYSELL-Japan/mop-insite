@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, LogOut, Heart, Mail, Calendar } from 'lucide-react';
 import { parseJwt } from '../utils/auth';
 import { useWindowSize } from '../hooks/useWindowSize';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface UserProfileProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export default function UserProfile({
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const { width } = useWindowSize();
+  const { t } = useLanguage();
   const isMobile = width < 768;
 
   useEffect(() => {
@@ -98,7 +100,7 @@ export default function UserProfile({
         {/* Header */}
         <div className="sticky top-0 bg-white z-10 px-6 py-4 border-b rounded-t-lg">
           <div className="flex justify-between items-center">
-            <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>My Page</h2>
+            <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>{t('profile.title')}</h2>
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
@@ -161,8 +163,8 @@ export default function UserProfile({
                 <Heart className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <div className="font-medium text-gray-900">Favorites</div>
-                <div className="text-sm text-gray-500">Your saved places</div>
+                <div className="font-medium text-gray-900">{t('nav.favorites')}</div>
+                <div className="text-sm text-gray-500">{t('profile.favoritesDescription')}</div>
               </div>
             </button>
 
@@ -170,14 +172,14 @@ export default function UserProfile({
 
           {/* Account Section */}
           <div className="px-6 py-4 border-t">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Account</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-3">{t('profile.account')}</h4>
             
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-red-50 rounded-lg transition-colors text-red-600"
             >
               <LogOut className="w-5 h-5" />
-              <span className="font-medium">Sign Out</span>
+              <span className="font-medium">{t('profile.signOut')}</span>
             </button>
           </div>
 

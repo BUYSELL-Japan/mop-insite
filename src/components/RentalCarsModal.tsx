@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { X, Car } from 'lucide-react';
 import { sendAffiliateLinkClickEvent } from '../utils/gtm';
+import { useLanguage } from '../hooks/useLanguage';
 
 // Expedia car search at Naha Airport via CJ. Pickup is two weeks from today (one-day rental),
 // so the link never opens a search for dates in the past.
@@ -31,6 +32,7 @@ interface RentalCarsModalProps {
 
 export default function RentalCarsModal({ isOpen, onClose }: RentalCarsModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -70,7 +72,7 @@ export default function RentalCarsModal({ isOpen, onClose }: RentalCarsModalProp
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <Car className="w-5 h-5 text-gray-700" />
-            <h2 className="text-xl font-bold">Rental Cars</h2>
+            <h2 className="text-xl font-bold">{t('nav.rentalCars')}</h2>
           </div>
           <button
             onClick={onClose}
@@ -90,7 +92,7 @@ export default function RentalCarsModal({ isOpen, onClose }: RentalCarsModalProp
           </div>
 
           <p className="text-gray-600">
-            Need a car for your trip? Find the best rental deals easily and explore Okinawa at your own pace!
+            {t('rentalCars.description')}
           </p>
 
           <a
@@ -101,7 +103,7 @@ export default function RentalCarsModal({ isOpen, onClose }: RentalCarsModalProp
             onClick={handleRentalCarClick}
           >
             <button className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              Find Rental Cars
+              {t('rentalCars.button')}
             </button>
           </a>
         </div>

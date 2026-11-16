@@ -61,12 +61,18 @@ export const normalizeCategory = (location: Location, language: Language = 'en')
     if (language === 'zh-TW') {
       return location.properties.title_zh_tw || location.properties.title;
     }
+    if (language === 'ko') {
+      return location.properties.title_ko || location.properties.title;
+    }
     return location.properties.title;
   };
 
   const getLocalizedAddress = () => {
     if (language === 'zh-TW') {
       return location.properties['address_zh-tw'] || location.properties.address;
+    }
+    if (language === 'ko') {
+      return location.properties.address_ko || location.properties.address;
     }
     return location.properties.address;
   };

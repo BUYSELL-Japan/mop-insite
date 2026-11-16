@@ -8,6 +8,8 @@ export interface Location {
     id: string;
     title: string;
     title_zh_tw?: string;
+    title_ko?: string;
+    address_ko?: string;
     description: string;
     description_ja?: string;
     description_en?: string;
