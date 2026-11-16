@@ -311,12 +311,43 @@ const detectBrowserLanguage = (): Language => {
   return 'en';
 };
 
+// ?lang= from links into the map (SSG spot / restaurant pages, guidebook): en, zh, zh-TW, ko
+export const parseLanguageParam = (value: string | null): Language | null => {
+  const v = value?.trim().toLowerCase();
+  if (v === 'en') return 'en';
+  if (v === 'zh' || v === 'zh-tw') return 'zh-TW';
+  if (v === 'ko') return 'ko';
+  return null;
+};
+
+// Read once at load: the link's language wins over the saved choice and becomes the saved choice.
+// `lang` is then removed from the address bar so a later reload keeps the user's own switch.
+const urlLanguage: Language | null = (() => {
+  if (typeof window === 'undefined') return null;
+  const url = new URL(window.location.href);
+  const lang = parseLanguageParam(url.searchParams.get('lang'));
+  if (url.searchParams.has('lang')) {
+    url.searchParams.delete('lang');
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+  }
+  if (lang) {
+    try {
+      window.localStorage.setItem('language', JSON.stringify(lang));
+    } catch {
+      // storage unavailable: the language still applies through the initial value
+    }
+  }
+  return lang;
+})();
+
+const initialLanguage = (): Language => urlLanguage || detectBrowserLanguage();
+
 // Create a global state for language changes
-let globalLanguageState: Language = detectBrowserLanguage();
+let globalLanguageState: Language = initialLanguage();
 const languageListeners: Set<() => void> = new Set();
 
 export function useLanguage() {
-  const [storedLanguage, setStoredLanguage] = useLocalStorage<Language>('language', detectBrowserLanguage());
+  const [storedLanguage, setStoredLanguage] = useLocalStorage<Language>('language', initialLanguage());
   const [currentLanguage, setCurrentLanguage] = useState<Language>(storedLanguage);
 
   // Initialize global state

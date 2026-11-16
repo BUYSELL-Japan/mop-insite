@@ -12,7 +12,7 @@ const getLanguage = () => {
   // 1. URLパラメータを最優先（遷移時の意図を反映するため）
   const urlParams = new URLSearchParams(window.location.search);
   const langParam = urlParams.get('lang');
-  if (langParam === 'zh') return 'zh-TW';
+  if (langParam === 'zh' || langParam === 'zh-TW') return 'zh-TW';
   if (langParam === 'en') return 'en';
   if (langParam === 'ko') return 'ko';
 
