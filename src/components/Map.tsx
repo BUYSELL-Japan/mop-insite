@@ -5,6 +5,7 @@ import { GeoJSONData, Location, CATEGORIES } from '../types/location';
 import { normalizeCategory } from '../utils/categoryNormalizer';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { useLanguage } from '../hooks/useLanguage';
+import { affiliateFields, getAffiliateLink } from '../utils/affiliate';
 import { AlertTriangle, Crosshair, MapPin } from 'lucide-react';
 import { createGeoJsonUrl } from '../utils/envValidation';
 import { addToFavorites, deleteFavorite, getFavorites } from '../utils/auth';
@@ -277,15 +278,12 @@ const Map = forwardRef<MapRef, MapProps>(({
       .replace(/<[^>]+>/g, '')
       .replace(/&[^;]+;/g, '');
 
-    // Language-specific URL extraction
-    const fieldName = language === 'zh-TW' ? 'affiliate_link_tw' : 'affiliate_link';
-    
-    // First try to extract from specific field pattern
-    const fieldRegex = new RegExp(`${fieldName}:\\s*(https?://[^\\s\\]]+)`, 'i');
-    const fieldMatch = cleanText.match(fieldRegex);
-    
-    if (fieldMatch) {
-      return fieldMatch[1];
+    // Language-specific field first ("affiliate_link_tw: https://..."), then affiliate_link for ko
+    for (const fieldName of affiliateFields(language).slice(0, language === 'ko' ? 2 : 1)) {
+      const fieldMatch = cleanText.match(new RegExp(`${fieldName}:\\s*(https?://[^\\s\\]]+)`, 'i'));
+      if (fieldMatch) {
+        return fieldMatch[1];
+      }
     }
     
     // Fallback to general URL extraction
@@ -413,10 +411,8 @@ const Map = forwardRef<MapRef, MapProps>(({
     // Get localized description based on current language
     const description = getLocalizedDescription(location);
 
-    // Get affiliate link directly from properties based on language
-    const url = language === 'zh-TW'
-      ? (location.properties.affiliate_link_tw || location.properties.affiliate_link)
-      : location.properties.affiliate_link;
+    // Affiliate link for the current language (zh-TW: _tw, ko: _ko), falling back to affiliate_link
+    const url = getAffiliateLink(location.properties, language);
 
     // Get guidebook URL based on language and normalize it
     const rawGuidebookUrl = language === 'zh-TW'

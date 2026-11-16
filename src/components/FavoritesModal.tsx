@@ -5,6 +5,7 @@ import { useWindowSize } from '../hooks/useWindowSize';
 import { deleteFavorite } from '../utils/auth';
 import { sendPinClickEvent, sendAffiliateLinkClickEvent } from '../utils/gtm';
 import { useLanguage, Language } from '../hooks/useLanguage';
+import { affiliateFields } from '../utils/affiliate';
 import { CATEGORIES } from '../types/location';
 
 interface FavoritesModalProps {
@@ -64,15 +65,12 @@ export default function FavoritesModal({
       .replace(/<[^>]+>/g, '')
       .replace(/&[^;]+;/g, '');
 
-    // Language-specific URL extraction
-    const fieldName = language === 'zh-TW' ? 'affiliate_link_tw' : 'affiliate_link';
-    
-    // First try to extract from specific field pattern
-    const fieldRegex = new RegExp(`${fieldName}:\\s*(https?://[^\\s\\]]+)`, 'i');
-    const fieldMatch = cleanText.match(fieldRegex);
-    
-    if (fieldMatch) {
-      return fieldMatch[1];
+    // Language-specific field first ("affiliate_link_tw: https://..."), then affiliate_link for ko
+    for (const fieldName of affiliateFields(language).slice(0, language === 'ko' ? 2 : 1)) {
+      const fieldMatch = cleanText.match(new RegExp(`${fieldName}:\\s*(https?://[^\\s\\]]+)`, 'i'));
+      if (fieldMatch) {
+        return fieldMatch[1];
+      }
     }
     
     // Fallback to general URL extraction

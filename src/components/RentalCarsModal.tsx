@@ -2,6 +2,28 @@ import React, { useRef, useEffect } from 'react';
 import { X, Car } from 'lucide-react';
 import { sendAffiliateLinkClickEvent } from '../utils/gtm';
 
+// Expedia car search at Naha Airport via CJ. Pickup is two weeks from today (one-day rental),
+// so the link never opens a search for dates in the past.
+const CJ_CLICK_URL = 'https://www.anrdoezrs.net/click-101309942-10581071';
+
+const formatUsDate = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
+// encodeURIComponent leaves ( ) as is; Expedia's own links have them encoded
+const encode = (v: string) =>
+  encodeURIComponent(v).replace(/[()]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+
+export function buildRentalCarUrl(now: Date = new Date(), daysAhead = 14): string {
+  const pickup = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead);
+  const dropoff = new Date(pickup.getFullYear(), pickup.getMonth(), pickup.getDate() + 1);
+  const params: [string, string][] = [
+    ['date1', formatUsDate(pickup)], ['date2', formatUsDate(dropoff)],
+    ['time1', '1030AM'], ['time2', '1030AM'],
+    ['dpln', '4279119'], ['locn', 'Naha, Japan (OKA)'], ['loc2', ''], ['drid1', ''],
+    ['olat', '26.206574'], ['olon', '127.65113'], ['pickupCode', 'OKA'], ['aarpcr', 'off'], ['useRewards', ''],
+  ];
+  const expediaUrl = 'https://www.expedia.com/carsearch?' + params.map(([k, v]) => `${k}=${encode(v)}`).join('&');
+  return `${CJ_CLICK_URL}?url=${encode(expediaUrl)}`;
+}
+
 interface RentalCarsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -28,9 +50,11 @@ export default function RentalCarsModal({ isOpen, onClose }: RentalCarsModalProp
 
   if (!isOpen) return null;
 
+  const rentalCarUrl = buildRentalCarUrl();
+
   const handleRentalCarClick = () => {
     sendAffiliateLinkClickEvent(
-      'https://www.anrdoezrs.net/click-101309942-10581071?url=https%3A%2F%2Fwww.expedia.com%2Fcarsearch%3Fdate1%3D5%252F13%252F2025%26date2%3D5%252F14%252F2025%26time1%3D1030AM%26time2%3D1030AM%26dpln%3D4279119%26locn%3DNaha%252C%2520Japan%2520%2528OKA%2529%26loc2%3D%26drid1%3D%26olat%3D26.206574%26olon%3D127.65113%26pickupCode%3DOKA%26aarpcr%3Doff%26useRewards%3D',
+      rentalCarUrl,
       'Rental Cars',
       'Rental Cars',
       'Rental Cars'
@@ -70,7 +94,7 @@ export default function RentalCarsModal({ isOpen, onClose }: RentalCarsModalProp
           </p>
 
           <a
-            href="https://www.anrdoezrs.net/click-101309942-10581071?url=https%3A%2F%2Fwww.expedia.com%2Fcarsearch%3Fdate1%3D5%252F13%252F2025%26date2%3D5%252F14%252F2025%26time1%3D1030AM%26time2%3D1030AM%26dpln%3D4279119%26locn%3DNaha%252C%2520Japan%2520%2528OKA%2529%26loc2%3D%26drid1%3D%26olat%3D26.206574%26olon%3D127.65113%26pickupCode%3DOKA%26aarpcr%3Doff%26useRewards%3D"
+            href={rentalCarUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full"

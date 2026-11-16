@@ -23,6 +23,7 @@ export interface Location {
     item_id?: string;
     affiliate_link?: string;
     affiliate_link_tw?: string;
+    affiliate_link_ko?: string;
     guidebook_url_en?: string;
     guidebook_url_tw?: string;
     original_data?: {
