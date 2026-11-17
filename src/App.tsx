@@ -52,15 +52,23 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userInfo, setUserInfo] = useState<any>(null);
   const [pendingLocationOpen, setPendingLocationOpen] = useState<Location | null>(null);
+  // Bumped whenever the favorites may have changed (add/remove anywhere, login, logout) so the map
+  // re-reads them and the ★ in popups matches the Favorites list
+  const [favoritesVersion, setFavoritesVersion] = useState(0);
+
+  useEffect(() => {
+    setFavoritesVersion(v => v + 1);
+  }, [isAuthenticated]);
 
   const refreshFavorites = async () => {
     if (isAuthenticated && locations.length > 0) {
       try {
         const favoritePinIds = await getFavorites();
-        const favoriteLocations = locations.filter(location => 
+        const favoriteLocations = locations.filter(location =>
           favoritePinIds.includes(location.properties.pin_id)
         );
         setFavorites(favoriteLocations);
+        setFavoritesVersion(v => v + 1);
         return favoritePinIds;
       } catch (error) {
         console.error('Error refreshing favorites:', error);
@@ -398,6 +406,7 @@ function App() {
           onLocationsLoad={setLocations}
           showMarkerTitles={showMarkerTitles}
           onFavoritesChange={refreshFavorites}
+          favoritesVersion={favoritesVersion}
         />
       </div>
 

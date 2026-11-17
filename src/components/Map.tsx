@@ -59,6 +59,8 @@ interface MapProps {
   onLocationsLoad?: (locations: Location[]) => void;
   showMarkerTitles: boolean;
   onFavoritesChange?: () => Promise<void>;
+  /** Changes when favorites may have changed outside the map (Favorites list, login, logout) */
+  favoritesVersion?: number;
 }
 
 interface MapRef {
@@ -71,7 +73,8 @@ const Map = forwardRef<MapRef, MapProps>(({
   selectedCategories, 
   onLocationsLoad, 
   showMarkerTitles,
-  onFavoritesChange 
+  onFavoritesChange,
+  favoritesVersion = 0
 }, ref) => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
@@ -116,7 +119,7 @@ const Map = forwardRef<MapRef, MapProps>(({
     if (locations.length > 0) {
       syncFavoriteStatus();
     }
-  }, [locations]);
+  }, [locations, favoritesVersion]);
 
   const showMessage = (message: string) => {
     setFavoriteMessage(message);
@@ -372,7 +375,18 @@ const Map = forwardRef<MapRef, MapProps>(({
     }
   };
 
-  const handleFavoriteClick = async (pinId: string) => {
+  // Popups opened from search, Favorites or ?pin_id= are static HTML (map.openPopup), so React state
+  // alone does not repaint their ★: update the clicked button directly as well.
+  const paintFavoriteButton = (button: Element | null, isFavorite: boolean) => {
+    if (!button) return;
+    button.setAttribute('data-is-favorite', String(isFavorite));
+    button.setAttribute('aria-label', isFavorite ? t('favorites.remove') : t('favorites.add'));
+    const svg = button.querySelector('svg');
+    svg?.setAttribute('fill', isFavorite ? '#fbbf24' : 'none');
+    svg?.setAttribute('stroke', isFavorite ? '#fbbf24' : 'currentColor');
+  };
+
+  const handleFavoriteClick = async (pinId: string, button: Element | null = null) => {
     const idToken = localStorage.getItem('id_token');
     if (!idToken) {
       showMessage(t('message.loginToAddFavorites'));
@@ -384,15 +398,17 @@ const Map = forwardRef<MapRef, MapProps>(({
       if (isFavorite) {
         await deleteFavorite(pinId);
         setFavoriteStatus(prev => ({ ...prev, [pinId]: false }));
+        paintFavoriteButton(button, false);
         showMessage(t('message.removedFromFavorites'));
       } else {
         await addToFavorites(pinId);
         setFavoriteStatus(prev => ({ ...prev, [pinId]: true }));
+        paintFavoriteButton(button, true);
         showMessage(t('message.addedToFavorites'));
         setAnimatingFavorite(pinId);
         setTimeout(() => setAnimatingFavorite(null), 300);
       }
-      
+
       if (onFavoritesChange) {
         await onFavoritesChange();
       }
@@ -578,7 +594,7 @@ const Map = forwardRef<MapRef, MapProps>(({
       if (favoriteButton) {
         const pinId = favoriteButton.getAttribute('data-pin-id');
         if (pinId) {
-          await handleFavoriteClick(pinId);
+          await handleFavoriteClick(pinId, favoriteButton);
         }
       }
     };
@@ -728,7 +744,8 @@ const Map = forwardRef<MapRef, MapProps>(({
         </div>
 
         {/* Restaurant layer toggle: always shown; data is fetched on the first switch-on */}
-        <div className="absolute bottom-6 left-4 z-[999]">
+        {/* bottom-16 on phones: the "Add to Home Screen" banner (main.tsx, fixed, ~80px) covers bottom-6 there */}
+        <div className="absolute bottom-16 md:bottom-6 left-4 z-[999]">
             <button
               onClick={restaurants.toggle}
               aria-pressed={restaurants.enabled}

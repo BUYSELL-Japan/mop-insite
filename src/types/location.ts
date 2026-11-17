@@ -79,7 +79,7 @@ export const CATEGORIES: Record<string, {
   "6": {
     name: "Hospitals",
     nameKey: "category.hospitals",
-    color: "#ffffff",
+    color: "#7b7b7b", // grey like its marker (white was invisible in the Filter list)
     markerUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png"
   },
   "9": {

@@ -164,16 +164,16 @@ export async function deleteFavorite(pinId: string): Promise<boolean> {
 }
 
 export async function addToFavorites(pinId: string): Promise<boolean> {
-  const idToken = localStorage.getItem('id_token');
-  const sub = localStorage.getItem('sub');
-
-  if (!idToken || !sub) {
+  if (!localStorage.getItem('id_token') || !localStorage.getItem('sub')) {
     throw new Error('User not authenticated');
   }
 
   try {
     await checkAndRefreshTokens();
-    
+    // Read after the refresh: an id_token read before it would be the expired one
+    const idToken = localStorage.getItem('id_token');
+    const sub = localStorage.getItem('sub');
+
     const response = await fetch(`${AUTH_CONFIG.apiEndpoint}/favorites`, {
       method: 'POST',
       headers: {
@@ -198,16 +198,15 @@ export async function addToFavorites(pinId: string): Promise<boolean> {
 }
 
 export async function getFavorites(): Promise<string[]> {
-  const idToken = localStorage.getItem('id_token');
-  const sub = localStorage.getItem('sub');
-
-  if (!idToken || !sub) {
+  if (!localStorage.getItem('id_token') || !localStorage.getItem('sub')) {
     return [];
   }
 
   try {
     await checkAndRefreshTokens();
-    
+    // Read after the refresh: an id_token read before it would be the expired one
+    const idToken = localStorage.getItem('id_token');
+
     const response = await fetch(`${AUTH_CONFIG.apiEndpoint}/favorites`, {
       method: 'GET',
       headers: {
