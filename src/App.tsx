@@ -18,6 +18,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { useWindowSize } from './hooks/useWindowSize';
 import { useAnalytics } from './hooks/useAnalytics';
 import { useViewportTracking } from './hooks/useViewportTracking';
+import { RESTAURANT_PIN_PREFIX } from './hooks/useRestaurantsLayer';
 import { Location } from './types/location';
 import { validateEnv } from './utils/envValidation';
 import { exchangeCodeForTokens, parseJwt, getFavorites, checkAndRefreshTokens } from './utils/auth';
@@ -74,8 +75,9 @@ function App() {
     const urlParams = new URLSearchParams(window.location.search);
     const pinId = urlParams.get('pin_id');
 
-    // Store pin_id for later use after locations are loaded
-    if (pinId) {
+    // Store pin_id for later use after locations are loaded.
+    // Restaurant pins (okr...) are handled by useRestaurantsLayer, not the spot data.
+    if (pinId && !pinId.startsWith(RESTAURANT_PIN_PREFIX)) {
       sessionStorage.setItem('pending_pin_id', pinId);
     }
   }, []);

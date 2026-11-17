@@ -10,6 +10,7 @@ import { AlertTriangle, Crosshair, MapPin } from 'lucide-react';
 import { createGeoJsonUrl } from '../utils/envValidation';
 import { addToFavorites, deleteFavorite, getFavorites } from '../utils/auth';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useRestaurantsLayer } from '../hooks/useRestaurantsLayer';
 import { sendPinClickEvent, sendAffiliateLinkClickEvent, sendExternalLinkClickEvent, getCurrentLanguage } from '../utils/gtm';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-rotatedmarker';
@@ -86,6 +87,7 @@ const Map = forwardRef<MapRef, MapProps>(({
   const [animatingFavorite, setAnimatingFavorite] = useState<string | null>(null);
   const messageTimeoutRef = useRef<number>();
   const { t, language } = useLanguage();
+  const restaurants = useRestaurantsLayer(map, language);
 
   // ポップアップ開封時のイベントハンドラー
   const handlePopupOpen = (location: Location) => {
@@ -724,6 +726,21 @@ const Map = forwardRef<MapRef, MapProps>(({
             <MapPin className="w-5 h-5 text-gray-700" />
           </button>
         </div>
+
+        {restaurants.available && (
+          <div className="absolute bottom-6 left-4 z-[999]">
+            <button
+              onClick={restaurants.toggle}
+              aria-pressed={restaurants.enabled}
+              className={`px-4 py-2 rounded-full shadow-md text-sm font-bold transition-colors ${
+                restaurants.enabled ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+              }`}
+            >
+              🍴 {restaurants.label}{restaurants.loading ? ' …' : ''}
+            </button>
+            {restaurants.error && <p className="mt-1 text-xs text-red-700 bg-white/90 rounded px-2 py-1">{restaurants.error}</p>}
+          </div>
+        )}
       </div>
     </>
   );
