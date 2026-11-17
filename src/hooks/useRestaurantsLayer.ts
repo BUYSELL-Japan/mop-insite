@@ -9,16 +9,56 @@ import type { Language } from './useLanguage';
  * Restaurant layer (beta, 2026-11-18).
  *
  * The toggle button is always shown; the layer starts off, or on when the URL has
- * show_restaurants=1 (links from the MOP-SSG restaurant pages). restaurants.geojson is ~18 MB, so it
+ * show_restaurants=1 (links from the MOP-SSG restaurant pages). restaurants_map.geojson is ~2.4 MB, so it
  * is fetched only when the layer is first switched on (never on initial load) and kept in memory:
  * switching off and on again does not fetch it again.
  * pin_id=<restaurant pin_id> centres the map on that shop at zoom 16 and opens its popup.
  *
- * Only approved shops (approved "1", which have an SSG page) with coordinates are drawn; the five
- * test records (source "test") are skipped.
+ * Only approved shops (approved "1", which have an SSG page) with coordinates are drawn (the light
+ * file holds only those; test records are not in it).
  */
 
-export const RESTAURANTS_GEOJSON_URL = 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/restaurants.geojson';
+// Light version for the map (~2.4 MB instead of ~18.5 MB): approved shops with coordinates only.
+// Built by MOP-SSG pipeline/build_restaurants.py build-map; properties:
+// id, name, lat, lng, rating, rating_count, genre, address, slug, approved, ad_tier, mop_partner, partner_service
+export const RESTAURANTS_GEOJSON_URL = 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/restaurants_map.geojson';
+
+interface MapFileProps {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  rating?: number | null;
+  rating_count?: number | null;
+  genre?: string | null;
+  address?: string | null;
+  slug: string;
+  approved?: string;
+  ad_tier?: 'basic' | 'premium' | null;
+  mop_partner?: boolean | null;
+  partner_service?: string | null;
+  // not in the light file yet; read if they are added later
+  partner_lp_url?: string | null;
+  ad_coupon_text?: string | null;
+}
+
+const fromMapFile = (p: MapFileProps): RestaurantFeature => ({
+  geometry: { type: 'Point', coordinates: [Number(p.lng), Number(p.lat)] },
+  properties: {
+    pin_id: p.id,
+    slug: p.slug,
+    title: p.name,
+    address: p.address,
+    genre: p.genre,
+    rating: p.rating,
+    review_count: p.rating_count,
+    approved: p.approved,
+    ad_tier: p.ad_tier,
+    mop_partner: p.mop_partner,
+    partner_lp_url: p.partner_lp_url,
+    ad_coupon_text: p.ad_coupon_text,
+  },
+});
 export const RESTAURANT_PIN_PREFIX = 'okr';
 
 interface RestaurantProps {
@@ -156,13 +196,13 @@ export function useRestaurantsLayer(map: L.Map | null, language: Language) {
         return res.json();
       })
       .then((data) => {
-        const list: RestaurantFeature[] = (data?.features ?? []).filter(
-          (f: RestaurantFeature) =>
-            f?.geometry?.type === 'Point' &&
-            f.properties?.slug &&
-            String(f.properties.approved) === '1' &&
-            f.properties.source !== 'test'
-        );
+        // The light file already holds only approved shops with coordinates; check anyway
+        const list: RestaurantFeature[] = (data?.features ?? [])
+          .map((f: { properties?: MapFileProps }) => f?.properties)
+          .filter((p: MapFileProps | undefined): p is MapFileProps =>
+            Boolean(p?.id && p.slug && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng)) &&
+              String(p.approved) === '1'))
+          .map(fromMapFile);
         setFeatures(list);
       })
       .catch((err) => {
