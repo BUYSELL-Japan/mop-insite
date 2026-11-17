@@ -727,8 +727,8 @@ const Map = forwardRef<MapRef, MapProps>(({
           </button>
         </div>
 
-        {restaurants.available && (
-          <div className="absolute bottom-6 left-4 z-[999]">
+        {/* Restaurant layer toggle: always shown; data is fetched on the first switch-on */}
+        <div className="absolute bottom-6 left-4 z-[999]">
             <button
               onClick={restaurants.toggle}
               aria-pressed={restaurants.enabled}
@@ -740,7 +740,6 @@ const Map = forwardRef<MapRef, MapProps>(({
             </button>
             {restaurants.error && <p className="mt-1 text-xs text-red-700 bg-white/90 rounded px-2 py-1">{restaurants.error}</p>}
           </div>
-        )}
       </div>
     </>
   );

@@ -8,9 +8,10 @@ import type { Language } from './useLanguage';
 /**
  * Restaurant layer (beta, 2026-11-18).
  *
- * Enabled only by the URL parameter show_restaurants=1 (links from the MOP-SSG restaurant pages):
- * without it nothing is fetched and the toggle button is not shown. restaurants.geojson is ~18 MB,
- * so it is fetched once and only when the layer is first switched on.
+ * The toggle button is always shown; the layer starts off, or on when the URL has
+ * show_restaurants=1 (links from the MOP-SSG restaurant pages). restaurants.geojson is ~18 MB, so it
+ * is fetched only when the layer is first switched on (never on initial load) and kept in memory:
+ * switching off and on again does not fetch it again.
  * pin_id=<restaurant pin_id> centres the map on that shop at zoom 16 and opens its popup.
  *
  * Only approved shops (approved "1", which have an SSG page) with coordinates are drawn; the five
@@ -147,7 +148,7 @@ export function useRestaurantsLayer(map: L.Map | null, language: Language) {
 
   // Fetch once, the first time the layer is on
   useEffect(() => {
-    if (!LAYER_REQUESTED || !enabled || features || loading || error) return;
+    if (!enabled || features || loading || error) return;
     setLoading(true);
     fetch(RESTAURANTS_GEOJSON_URL)
       .then((res) => {
@@ -203,9 +204,11 @@ export function useRestaurantsLayer(map: L.Map | null, language: Language) {
   }, [map, enabled, features, language]);
 
   return {
-    available: LAYER_REQUESTED,
     enabled,
-    toggle: () => setEnabled((v) => !v),
+    toggle: () => {
+      setError(null); // a failed fetch is retried the next time the layer is switched on
+      setEnabled((v) => !v);
+    },
     loading,
     error,
     label: (TEXT[language] ?? TEXT.en).toggle,
