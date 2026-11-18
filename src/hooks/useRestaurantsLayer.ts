@@ -22,7 +22,7 @@ import { genreLabel, type GenreLang } from '../lib/genreLabels';
 // Light version for the map (~2.4 MB instead of ~18.5 MB): approved shops with coordinates only.
 // Built by MOP-SSG pipeline/build_restaurants.py build-map; properties:
 // id, name (Japanese), name_en, name_zh, name_ko, lat, lng, rating, rating_count, genre, address, slug,
-// approved, ad_tier, mop_partner, partner_service
+// approved, ad_tier, mop_partner, partner_service, google_maps_url (Get Directions opens it when present)
 export const RESTAURANTS_GEOJSON_URL = 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/restaurants_map.geojson';
 
 interface MapFileProps {
@@ -42,10 +42,10 @@ interface MapFileProps {
   ad_tier?: 'basic' | 'premium' | null;
   mop_partner?: boolean | null;
   partner_service?: string | null;
+  google_maps_url?: string | null;
   // not in the light file yet; read if they are added later
   partner_lp_url?: string | null;
   ad_coupon_text?: string | null;
-  google_maps_url?: string | null;
 }
 
 const fromMapFile = (p: MapFileProps): RestaurantFeature => ({
@@ -165,7 +165,7 @@ const localizedName = (p: RestaurantProps, language: Language): string =>
 const localizedAddress = (p: RestaurantProps, language: Language): string =>
   (language === 'zh-TW' ? p['address_zh-tw'] : language === 'ko' ? p.address_ko : null) || p.address || '';
 
-/** google_maps_url when present (not in the light file yet), else a Google Maps directions link; null without coordinates */
+/** The shop's own Google Maps page (google_maps_url, CID based) when present, else a directions link to its coordinates */
 const directionsUrl = (f: RestaurantFeature): string | null => {
   const own = safeHttpUrl(f.properties.google_maps_url);
   if (own) return own;
