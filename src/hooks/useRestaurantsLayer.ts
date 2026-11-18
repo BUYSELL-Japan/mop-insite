@@ -45,6 +45,7 @@ interface MapFileProps {
   // not in the light file yet; read if they are added later
   partner_lp_url?: string | null;
   ad_coupon_text?: string | null;
+  google_maps_url?: string | null;
 }
 
 const fromMapFile = (p: MapFileProps): RestaurantFeature => ({
@@ -66,6 +67,7 @@ const fromMapFile = (p: MapFileProps): RestaurantFeature => ({
     mop_partner: p.mop_partner,
     partner_lp_url: p.partner_lp_url,
     ad_coupon_text: p.ad_coupon_text,
+    google_maps_url: p.google_maps_url,
   },
 });
 export const RESTAURANT_PIN_PREFIX = 'okr';
@@ -90,6 +92,7 @@ interface RestaurantProps {
   mop_partner?: boolean | null;
   partner_lp_url?: string | null;
   ad_coupon_text?: string | null;
+  google_maps_url?: string | null;
 }
 
 interface RestaurantFeature {
@@ -97,10 +100,10 @@ interface RestaurantFeature {
   properties: RestaurantProps;
 }
 
-const TEXT: Record<Language, { toggle: string; details: string; coupon: string; partnerPage: string }> = {
-  en: { toggle: 'Restaurants', details: 'View details', coupon: 'Coupon', partnerPage: 'Visit the shop page' },
-  'zh-TW': { toggle: '餐廳', details: '查看詳情', coupon: '優惠券', partnerPage: '前往店家頁面' },
-  ko: { toggle: '음식점', details: '자세히 보기', coupon: '쿠폰', partnerPage: '가게 페이지 보기' },
+const TEXT: Record<Language, { toggle: string; details: string; directions: string; coupon: string; partnerPage: string }> = {
+  en: { toggle: 'Restaurants', details: 'View details', directions: 'Get Directions', coupon: 'Coupon', partnerPage: 'Visit the shop page' },
+  'zh-TW': { toggle: '餐廳', details: '查看詳情', directions: '路線導航', coupon: '優惠券', partnerPage: '前往店家頁面' },
+  ko: { toggle: '음식점', details: '자세히 보기', directions: '길찾기', coupon: '쿠폰', partnerPage: '가게 페이지 보기' },
 };
 
 const params = new URLSearchParams(window.location.search);
@@ -162,8 +165,21 @@ const localizedName = (p: RestaurantProps, language: Language): string =>
 const localizedAddress = (p: RestaurantProps, language: Language): string =>
   (language === 'zh-TW' ? p['address_zh-tw'] : language === 'ko' ? p.address_ko : null) || p.address || '';
 
-const popupHtml = (p: RestaurantProps, language: Language): string => {
+/** google_maps_url when present (not in the light file yet), else a Google Maps directions link; null without coordinates */
+const directionsUrl = (f: RestaurantFeature): string | null => {
+  const own = safeHttpUrl(f.properties.google_maps_url);
+  if (own) return own;
+  const [lng, lat] = f.geometry?.coordinates ?? [];
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+};
+
+const BUTTON_STYLE = 'flex:1;display:block;text-align:center;padding:8px 6px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none';
+
+const popupHtml = (f: RestaurantFeature, language: Language): string => {
+  const p = f.properties;
   const text = TEXT[language] ?? TEXT.en;
+  const directions = f.geometry ? directionsUrl(f) : null;
   const isPartner = Boolean(p.mop_partner || p.ad_tier);
   const lpUrl = isPartner ? safeHttpUrl(p.partner_lp_url) : null;
   const lpIsImage = lpUrl ? /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(lpUrl) : false;
@@ -181,9 +197,14 @@ const popupHtml = (p: RestaurantProps, language: Language): string => {
         ? `<div style="font-size:12px;color:#6b7280;margin:-2px 0 4px">${escapeHtml(p.title_ja)}</div>` : ''}
       ${meta ? `<div style="font-size:13px;margin-bottom:4px">${meta}</div>` : ''}
       ${address ? `<div style="font-size:12px;color:#4b5563;margin-bottom:8px">${escapeHtml(address)}</div>` : ''}
-      <a href="${escapeHtml(ssgPath(language, p.slug))}" target="_blank" rel="noopener"
-         style="display:block;text-align:center;padding:8px 12px;border-radius:8px;background:#f97316;color:#fff;font-weight:700;font-size:13px;text-decoration:none">
-        ${escapeHtml(text.details)}</a>
+      <div style="display:flex;gap:6px">
+        <a href="${escapeHtml(ssgPath(language, p.slug))}" target="_blank" rel="noopener"
+           style="${BUTTON_STYLE};background:#2563eb;border:1px solid #2563eb;color:#fff">
+          ${escapeHtml(text.details)}</a>
+        ${directions ? `<a href="${escapeHtml(directions)}" target="_blank" rel="nofollow noopener noreferrer"
+           style="${BUTTON_STYLE};background:#fff;border:1px solid #9ca3af;color:#374151">
+          ${escapeHtml(text.directions)}</a>` : ''}
+      </div>
       ${lpUrl ? (lpIsImage
         ? `<a href="${escapeHtml(lpUrl)}" target="_blank" rel="noopener sponsored" style="display:block;margin-top:8px"><img src="${escapeHtml(lpUrl)}" alt="" loading="lazy" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px" onerror="this.parentElement.style.display='none'"></a>`
         : `<a href="${escapeHtml(lpUrl)}" target="_blank" rel="noopener sponsored" style="display:block;margin-top:8px;text-align:center;padding:6px 12px;border-radius:8px;border:1px solid #f97316;color:#c2410c;font-size:13px;text-decoration:none">${escapeHtml(text.partnerPage)}</a>`) : ''}
@@ -239,7 +260,7 @@ export function useRestaurantsLayer(map: L.Map | null, language: Language) {
         // ad tiers above general ones when pins overlap
         zIndexOffset: f.properties.ad_tier === 'premium' ? 1000 : f.properties.ad_tier || f.properties.mop_partner ? 500 : 0,
       });
-      marker.bindPopup(() => popupHtml(f.properties, language), { maxWidth: 300 });
+      marker.bindPopup(() => popupHtml(f, language), { maxWidth: 300 });
       if (f.properties.pin_id === REQUESTED_PIN) target = marker;
       return marker;
     });
