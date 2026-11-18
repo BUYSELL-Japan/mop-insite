@@ -346,7 +346,7 @@ function App() {
 
               <div className={`${isMobile ? 'snap-center' : ''}`}>
                 <a
-                  href={language === 'zh-TW' ? `${window.location.origin}/zh/guidebook/` : `${window.location.origin}/en/guidebook/`}
+                  href={`${window.location.origin}/${language === 'zh-TW' ? 'zh' : language === 'ko' ? 'ko' : 'en'}/guidebook/`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-sm border border-white/30 hover:bg-white/95 transition-colors whitespace-nowrap text-sm min-h-[36px]"

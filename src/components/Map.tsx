@@ -433,9 +433,12 @@ const Map = forwardRef<MapRef, MapProps>(({
     const url = getAffiliateLink(location.properties, language);
 
     // Get guidebook URL based on language and normalize it
+    // The data has no Korean URL column; the Korean guidebook uses the same slugs under /ko/guidebook/
     const rawGuidebookUrl = language === 'zh-TW'
       ? location.properties.guidebook_url_tw
-      : location.properties.guidebook_url_en;
+      : language === 'ko'
+        ? (location.properties.guidebook_url_en || '').replace('/en/guidebook/', '/ko/guidebook/')
+        : location.properties.guidebook_url_en;
     const guidebookUrl = normalizeMopUrl(rawGuidebookUrl || '');
 
     const cleanDescription = getCleanDescription(description);
