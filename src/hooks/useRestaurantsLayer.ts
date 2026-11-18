@@ -4,6 +4,7 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import type { Language } from './useLanguage';
+import { genreLabel, type GenreLang } from '../lib/genreLabels';
 
 /**
  * Restaurant layer (beta, 2026-11-18).
@@ -145,8 +146,10 @@ const pinIcon = (p: RestaurantProps): L.DivIcon => {
   return icon;
 };
 
-const genreLabel = (code: string | null | undefined): string =>
-  (code || '').split('_').filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');
+// Same labels as the MOP-SSG restaurant pages (src/lib/genreLabels.ts is a copy of MOP-SSG's)
+const GENRE_LANG: Record<Language, GenreLang> = { en: 'en', 'zh-TW': 'zh', ko: 'ko' };
+const genreText = (code: string | null | undefined, language: Language): string =>
+  genreLabel(code, GENRE_LANG[language] ?? 'en');
 
 const ssgPath = (language: Language, slug: string): string => {
   const seg = language === 'zh-TW' ? 'zh' : language === 'ko' ? 'ko' : 'en';
@@ -167,7 +170,7 @@ const popupHtml = (p: RestaurantProps, language: Language): string => {
   const rating = typeof p.rating === 'number'
     ? `<span style="color:#f59e0b">★</span> ${p.rating.toFixed(1)}${typeof p.review_count === 'number' ? ` <span style="color:#6b7280">(${p.review_count})</span>` : ''}`
     : '';
-  const genre = genreLabel(p.genre);
+  const genre = genreText(p.genre, language);
   const meta = [rating, genre && escapeHtml(genre)].filter(Boolean).join('&nbsp;&nbsp;');
   const address = localizedAddress(p, language);
 
