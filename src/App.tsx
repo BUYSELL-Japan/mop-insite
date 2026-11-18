@@ -22,12 +22,14 @@ import { RESTAURANT_PIN_PREFIX } from './hooks/useRestaurantsLayer';
 import { Location } from './types/location';
 import { validateEnv } from './utils/envValidation';
 import { exchangeCodeForTokens, parseJwt, getFavorites, checkAndRefreshTokens } from './utils/auth';
+import { hasFlag, setFlag, SPLASH_SHOWN_KEY, WELCOME_SHOWN_KEY } from './utils/visitFlags';
 
 const LOGIN_URL = `https://ap-southeast-2usngbi9wi.auth.ap-southeast-2.amazoncognito.com/login?client_id=12nf22nqg8mpcq1q77nm5uqbls&response_type=code&scope=email+openid&redirect_uri=${encodeURIComponent(window.location.origin)}`;
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
-  const [hasSeenWelcome, setHasSeenWelcome] = useLocalStorage('hasSeenWelcome', false);
+  // Splash and welcome dialog only on the first visit (localStorage mop_splash_shown / mop_welcome_shown)
+  const [showSplash, setShowSplash] = useState(() => !hasFlag(SPLASH_SHOWN_KEY));
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(() => hasFlag(WELCOME_SHOWN_KEY));
   const { t, language, changeLanguage } = useLanguage();
   const env = validateEnv();
 
@@ -238,6 +240,7 @@ function App() {
   }, [selectedCategories, pendingLocationOpen]);
 
   const handleWelcomeClose = () => {
+    setFlag(WELCOME_SHOWN_KEY);
     setHasSeenWelcome(true);
   };
 
@@ -262,7 +265,7 @@ function App() {
   };
 
   if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+    return <SplashScreen onFinish={() => { setFlag(SPLASH_SHOWN_KEY); setShowSplash(false); }} />;
   }
 
   return (
