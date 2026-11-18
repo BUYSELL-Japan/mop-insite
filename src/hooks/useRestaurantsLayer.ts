@@ -20,12 +20,16 @@ import type { Language } from './useLanguage';
 
 // Light version for the map (~2.4 MB instead of ~18.5 MB): approved shops with coordinates only.
 // Built by MOP-SSG pipeline/build_restaurants.py build-map; properties:
-// id, name, lat, lng, rating, rating_count, genre, address, slug, approved, ad_tier, mop_partner, partner_service
+// id, name (Japanese), name_en, name_zh, name_ko, lat, lng, rating, rating_count, genre, address, slug,
+// approved, ad_tier, mop_partner, partner_service
 export const RESTAURANTS_GEOJSON_URL = 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/restaurants_map.geojson';
 
 interface MapFileProps {
   id: string;
   name: string;
+  name_en?: string | null;
+  name_zh?: string | null;
+  name_ko?: string | null;
   lat: number;
   lng: number;
   rating?: number | null;
@@ -48,6 +52,10 @@ const fromMapFile = (p: MapFileProps): RestaurantFeature => ({
     pin_id: p.id,
     slug: p.slug,
     title: p.name,
+    title_ja: p.name,
+    title_en: p.name_en,
+    title_zh_tw: p.name_zh,
+    title_ko: p.name_ko,
     address: p.address,
     genre: p.genre,
     rating: p.rating,
@@ -66,6 +74,7 @@ interface RestaurantProps {
   slug: string;
   title: string;
   title_ja?: string | null;
+  title_en?: string | null;
   title_zh_tw?: string | null;
   title_ko?: string | null;
   address?: string | null;
@@ -145,7 +154,7 @@ const ssgPath = (language: Language, slug: string): string => {
 };
 
 const localizedName = (p: RestaurantProps, language: Language): string =>
-  (language === 'zh-TW' ? p.title_zh_tw : language === 'ko' ? p.title_ko : null) || p.title || p.title_ja || '';
+  (language === 'zh-TW' ? p.title_zh_tw : language === 'ko' ? p.title_ko : p.title_en) || p.title || p.title_ja || '';
 
 const localizedAddress = (p: RestaurantProps, language: Language): string =>
   (language === 'zh-TW' ? p['address_zh-tw'] : language === 'ko' ? p.address_ko : null) || p.address || '';
@@ -165,6 +174,8 @@ const popupHtml = (p: RestaurantProps, language: Language): string => {
   return `
     <div style="min-width:220px;max-width:280px">
       <h3 style="font-size:16px;font-weight:700;margin:0 0 4px">${escapeHtml(localizedName(p, language))}</h3>
+      ${p.title_ja && p.title_ja !== localizedName(p, language)
+        ? `<div style="font-size:12px;color:#6b7280;margin:-2px 0 4px">${escapeHtml(p.title_ja)}</div>` : ''}
       ${meta ? `<div style="font-size:13px;margin-bottom:4px">${meta}</div>` : ''}
       ${address ? `<div style="font-size:12px;color:#4b5563;margin-bottom:8px">${escapeHtml(address)}</div>` : ''}
       <a href="${escapeHtml(ssgPath(language, p.slug))}" target="_blank" rel="noopener"
