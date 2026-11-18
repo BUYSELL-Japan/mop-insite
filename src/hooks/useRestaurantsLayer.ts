@@ -22,7 +22,8 @@ import { genreLabel, type GenreLang } from '../lib/genreLabels';
 // Light version for the map (~2.4 MB instead of ~18.5 MB): approved shops with coordinates only.
 // Built by MOP-SSG pipeline/build_restaurants.py build-map; properties:
 // id, name (Japanese), name_en, name_zh, name_ko, lat, lng, rating, rating_count, genre, address, slug,
-// approved, ad_tier, mop_partner, partner_service, google_maps_url (Get Directions opens it when present)
+// approved, ad_tier, mop_partner, partner_service, google_maps_url (Get Directions opens it when present),
+// official_url (shop website / Instagram / Facebook …: the first popup button)
 export const RESTAURANTS_GEOJSON_URL = 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/restaurants_map.geojson';
 
 interface MapFileProps {
@@ -43,6 +44,7 @@ interface MapFileProps {
   mop_partner?: boolean | null;
   partner_service?: string | null;
   google_maps_url?: string | null;
+  official_url?: string | null;
   // not in the light file yet; read if they are added later
   partner_lp_url?: string | null;
   ad_coupon_text?: string | null;
@@ -68,6 +70,7 @@ const fromMapFile = (p: MapFileProps): RestaurantFeature => ({
     partner_lp_url: p.partner_lp_url,
     ad_coupon_text: p.ad_coupon_text,
     google_maps_url: p.google_maps_url,
+    official_url: p.official_url,
   },
 });
 export const RESTAURANT_PIN_PREFIX = 'okr';
@@ -93,6 +96,7 @@ interface RestaurantProps {
   partner_lp_url?: string | null;
   ad_coupon_text?: string | null;
   google_maps_url?: string | null;
+  official_url?: string | null;
 }
 
 interface RestaurantFeature {
@@ -174,12 +178,29 @@ const directionsUrl = (f: RestaurantFeature): string | null => {
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 };
 
-const BUTTON_STYLE = 'flex:1;display:block;text-align:center;padding:8px 6px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none';
+// official_url is Google's "website" field: often an Instagram / Facebook / Tabelog / Hot Pepper page
+type SiteKind = 'instagram' | 'facebook' | 'tabelog' | 'hotpepper' | 'website';
+const SITE_LABEL: Record<Language, Record<SiteKind, string>> = {
+  en: { instagram: 'Instagram', facebook: 'Facebook', tabelog: '食べログ', hotpepper: 'ホットペッパー', website: 'Website' },
+  'zh-TW': { instagram: 'Instagram', facebook: 'Facebook', tabelog: '食べログ', hotpepper: 'ホットペッパー', website: '官方網站' },
+  ko: { instagram: '인스타그램', facebook: '페이스북', tabelog: '타베로그', hotpepper: '핫페퍼', website: '웹사이트' },
+};
+const SITE_DOMAINS: [string, SiteKind][] = [
+  ['instagram.com', 'instagram'], ['facebook.com', 'facebook'], ['tabelog.com', 'tabelog'], ['hotpepper.jp', 'hotpepper'],
+];
+const siteKind = (url: string): SiteKind => {
+  const host = new URL(url).hostname.toLowerCase();
+  return SITE_DOMAINS.find(([d]) => host === d || host.endsWith(`.${d}`))?.[1] ?? 'website';
+};
+
+// Equal-height buttons in one row; a label that wraps stays vertically centred
+const BUTTON_STYLE = 'flex:1;min-width:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 4px;border-radius:8px;font-weight:700;font-size:13px;line-height:1.2;text-decoration:none';
 
 const popupHtml = (f: RestaurantFeature, language: Language): string => {
   const p = f.properties;
   const text = TEXT[language] ?? TEXT.en;
   const directions = f.geometry ? directionsUrl(f) : null;
+  const site = safeHttpUrl(p.official_url);
   const isPartner = Boolean(p.mop_partner || p.ad_tier);
   const lpUrl = isPartner ? safeHttpUrl(p.partner_lp_url) : null;
   const lpIsImage = lpUrl ? /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(lpUrl) : false;
@@ -198,6 +219,9 @@ const popupHtml = (f: RestaurantFeature, language: Language): string => {
       ${meta ? `<div style="font-size:13px;margin-bottom:4px">${meta}</div>` : ''}
       ${address ? `<div style="font-size:12px;color:#4b5563;margin-bottom:8px">${escapeHtml(address)}</div>` : ''}
       <div style="display:flex;gap:6px">
+        ${site ? `<a href="${escapeHtml(site)}" target="_blank" rel="nofollow noopener noreferrer"
+           style="${BUTTON_STYLE};background:#6b7280;border:1px solid #6b7280;color:#fff">
+          ${escapeHtml((SITE_LABEL[language] ?? SITE_LABEL.en)[siteKind(site)])}</a>` : ''}
         <a href="${escapeHtml(ssgPath(language, p.slug))}" target="_blank" rel="noopener"
            style="${BUTTON_STYLE};background:#2563eb;border:1px solid #2563eb;color:#fff">
           ${escapeHtml(text.details)}</a>

@@ -120,8 +120,8 @@ export const translations: Translations = {
     ko: '자세히 보기'
   },
   'action.direction': {
-    en: 'Direction',
-    'zh-TW': '路線',
+    en: 'Get Directions',
+    'zh-TW': '路線導航',
     ko: '길찾기'
   },
   'action.guideBook': {
