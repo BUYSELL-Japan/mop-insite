@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useWindowSize } from '../hooks/useWindowSize';
+import React, { useEffect, useMemo, useState } from 'react';
+
+const SEASON_BG_BASE = 'https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/bg';
+
+// 月(1〜12) → 季節別トップ画像
+const seasonImageForMonth = (month: number): string => {
+  if (month >= 3 && month <= 5) return `${SEASON_BG_BASE}/season-spring.jpg`;
+  if (month >= 6 && month <= 9) return `${SEASON_BG_BASE}/season-summer.jpg`;
+  if (month >= 10 && month <= 11) return `${SEASON_BG_BASE}/season-autumn.jpg`;
+  return `${SEASON_BG_BASE}/season-winter.jpg`; // 12〜2月
+};
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -7,14 +16,8 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onFinish }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
-  const { width } = useWindowSize();
-  const isMobile = width < 768;
-
-  // デバイス別の画像URL（キャッシュバスターを追加）
-  const timestamp = Date.now();
-  const splashImage = isMobile 
-    ? `https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/Splushphone9.6.webp?v=${timestamp}`
-    : `https://s3geojsonnew.s3.ap-southeast-2.amazonaws.com/PWA%E3%82%A2%E3%82%A4%E3%82%B3%E3%83%B3/Splashtablet9.6.webp?v=${timestamp}`;
+  // マウント時の現在月で決定（S3側は max-age=1年なのでキャッシュバスターは付けない）
+  const splashImage = useMemo(() => seasonImageForMonth(new Date().getMonth() + 1), []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
